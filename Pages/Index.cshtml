@@ -1,15 +1,9 @@
 ﻿@page
 @model IndexModel
+@using Microsoft.AspNetCore.Antiforgery
+@inject IAntiforgery Xsrf
 @{
     ViewData["Title"] = "Home Page";
-
-    // Vos données statiques (Mock Data)
-    var featuredProducts = new[]
-    {
-        new { Name = "Ergo Chair Ultra", Price = 299.00, Image = "https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?auto=format&fit=crop&w=400&q=80", Tag = "Best Seller" },
-        new { Name = "Sonic Noise-Cancel", Price = 149.50, Image = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=400&q=80", Tag = "New" },
-        new { Name = "Smart Lens 4K", Price = 899.00, Image = "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=400&q=80", Tag = "Sale" }
-    };
 }
 
 <style>
@@ -21,7 +15,7 @@
         --card-shadow: 0 10px 20px rgba(0,0,0,0.05);
     }
 
-    /* Hero Section Améliorée */
+    /* --- Hero Section --- */
     .hero-section {
         background: var(--primary-gradient);
         color: white;
@@ -68,7 +62,7 @@
             color: var(--primary-color);
         }
 
-    /* Section Titres */
+    /* --- Features & Cards --- */
     .section-title {
         font-weight: 800;
         margin-bottom: 2rem;
@@ -86,7 +80,6 @@
             margin-top: 5px;
         }
 
-    /* Feature Box (Services) */
     .feature-box {
         text-align: center;
         padding: 2rem;
@@ -107,7 +100,6 @@
         margin-bottom: 1rem;
     }
 
-    /* Cards Styles */
     .custom-card {
         border: none;
         border-radius: 15px;
@@ -154,29 +146,18 @@
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
 
-    /* Newsletter */
-    .newsletter-section {
-        background-color: #2d3748;
-        color: white;
-        border-radius: 20px;
-        padding: 4rem 2rem;
-        margin-top: 5rem;
-        text-align: center;
-    }
-
-    .newsletter-input {
-        border-radius: 50px 0 0 50px;
-        border: none;
-        padding: 15px 25px;
-    }
-
-    .newsletter-btn {
-        border-radius: 0 50px 50px 0;
+    /* --- Chat Styles --- */
+    .chat-bubble-user {
         background: var(--primary-color);
         color: white;
-        border: none;
-        padding: 0 30px;
-        font-weight: 600;
+        border-radius: 15px 15px 0 15px;
+    }
+
+    .chat-bubble-ai {
+        background: white;
+        color: #333;
+        border-radius: 15px 15px 15px 0;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
 </style>
 
@@ -190,11 +171,8 @@
                 <h1 class="display-3 fw-bolder mb-3">Upgrade Your <br />Digital Life</h1>
                 <p class="lead mb-4 opacity-75" style="font-weight: 300;">
                     Experience the future today with our curated selection of high-end electronics.
-                    Performance meets style in every device.
                 </p>
-                <a asp-page="/Produits/Index" class="hero-btn">
-                    Shop Now <i class="bi bi-arrow-right ms-2"></i>
-                </a>
+                <a asp-page="/Produits/Index" class="hero-btn">Shop Now <i class="bi bi-arrow-right ms-2"></i></a>
             </div>
             <div class="col-lg-5 d-none d-lg-block text-center position-relative">
                 <i class="bi bi-laptop display-1 text-white opacity-25" style="font-size: 10rem;"></i>
@@ -203,63 +181,58 @@
     </div>
 
     <div class="row g-4 mb-5">
-        <div class="col-md-4">
-            <div class="feature-box">
-                <i class="bi bi-truck feature-icon"></i>
-                <h5>Free Shipping</h5>
-                <p class="text-muted small">On all orders over 500€ within the country.</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="feature-box">
-                <i class="bi bi-shield-check feature-icon"></i>
-                <h5>2 Year Warranty</h5>
-                <p class="text-muted small">Comprehensive coverage for your peace of mind.</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="feature-box">
-                <i class="bi bi-headset feature-icon"></i>
-                <h5>24/7 Support</h5>
-                <p class="text-muted small">Our technical experts are here to help you.</p>
-            </div>
-        </div>
+        <div class="col-md-4"><div class="feature-box"><i class="bi bi-truck feature-icon"></i><h5>Free Shipping</h5><p class="text-muted small">On all orders over 500€.</p></div></div>
+        <div class="col-md-4"><div class="feature-box"><i class="bi bi-shield-check feature-icon"></i><h5>2 Year Warranty</h5><p class="text-muted small">Comprehensive coverage.</p></div></div>
+        <div class="col-md-4"><div class="feature-box"><i class="bi bi-headset feature-icon"></i><h5>24/7 Support</h5><p class="text-muted small">Experts are here to help.</p></div></div>
     </div>
 
     <div class="mb-5">
         <h2 class="section-title">Editor's Picks</h2>
-        <div class="row g-4 mt-2">
-            @foreach (var item in featuredProducts)
-            {
-                <div class="col-md-4">
-                    <div class="custom-card">
-                        <div class="card-img-wrapper">
-                            <span class="card-badge">@item.Tag</span>
-                            <img src="@item.Image" alt="@item.Name">
-                        </div>
-                        <div class="p-4">
-                            <h5 class="fw-bold">@item.Name</h5>
-                            <div class="d-flex justify-content-between align-items-center mt-3">
-                                <span class="h5 mb-0 text-primary">@item.Price.ToString("N2") €</span>
-                                <a asp-page="/Produits/Index" class="btn btn-sm btn-outline-dark rounded-pill">View</a>
+        @if (Model.FeaturedProducts != null && Model.FeaturedProducts.Any())
+        {
+            <div class="row g-4 mt-2">
+                @foreach (var item in Model.FeaturedProducts)
+                {
+                    <div class="col-md-4">
+                        <div class="custom-card">
+                            <div class="card-img-wrapper">
+                                <span class="card-badge">Top Rated</span>
+                                @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                {
+                                    <img src="@item.ImageUrl" alt="@item.Name">
+                                }
+                                else
+                                {
+                                    <div class="d-flex align-items-center justify-content-center h-100 bg-secondary text-white">No Image</div>
+                                }
+                            </div>
+                            <div class="p-4">
+                                <h5 class="fw-bold">@item.Name</h5>
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <span class="h5 mb-0 text-primary">@item.Price.ToString("N2") €</span>
+                                    <a asp-page="/Produits/Details" asp-route-id="@item.ProduitId" class="btn btn-sm btn-outline-dark rounded-pill">View</a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            }
-        </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-center text-muted">No featured products found.</p>
+        }
     </div>
 
-    @if (Model.Produit != null && Model.Produit.Any())
+    @if (Model.NewArrivals != null && Model.NewArrivals.Any())
     {
         <div class="mb-5">
             <div class="d-flex justify-content-between align-items-end mb-4">
                 <h2 class="section-title mb-0">New Arrivals</h2>
                 <a asp-page="/Produits/Index" class="text-decoration-none fw-bold">View All <i class="bi bi-arrow-right"></i></a>
             </div>
-
             <div class="row g-4">
-                @foreach (var item in Model.Produit)
+                @foreach (var item in Model.NewArrivals)
                 {
                     <div class="col-6 col-md-3">
                         <div class="custom-card h-100">
@@ -270,19 +243,14 @@
                                 }
                                 else
                                 {
-                                    <div class="d-flex align-items-center justify-content-center h-100 bg-light text-muted">
-                                        <i class="bi bi-image fs-1"></i>
-                                    </div>
+                                    <div class="d-flex align-items-center justify-content-center h-100 bg-light text-muted"><i class="bi bi-image fs-1"></i></div>
                                 }
                             </div>
                             <div class="p-3 d-flex flex-column h-100">
                                 <h6 class="fw-bold text-truncate">@item.Name</h6>
-                                <p class="small text-muted mb-2 text-truncate">@item.Description</p>
                                 <div class="mt-auto d-flex justify-content-between align-items-center">
                                     <span class="fw-bold text-dark">@item.Price.ToString("N2") €</span>
-                                    <a asp-page="/Produits/Details" asp-route-id="@item.ProduitId" class="btn btn-sm btn-light rounded-circle">
-                                        <i class="bi bi-plus-lg"></i>
-                                    </a>
+                                    <a asp-page="/Produits/Details" asp-route-id="@item.ProduitId" class="btn btn-sm btn-light rounded-circle"><i class="bi bi-plus-lg"></i></a>
                                 </div>
                             </div>
                         </div>
@@ -292,18 +260,4 @@
         </div>
     }
 
-    <div class="newsletter-section">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <i class="bi bi-envelope-paper display-4 mb-3"></i>
-                <h2 class="fw-bold">Join Our Newsletter</h2>
-                <p class="mb-4 text-white-50">Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.</p>
-                <form class="d-flex justify-content-center">
-                    <input type="email" class="form-control newsletter-input w-50" placeholder="Enter your email">
-                    <button class="btn newsletter-btn" type="button">Subscribe</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-</div>
+    

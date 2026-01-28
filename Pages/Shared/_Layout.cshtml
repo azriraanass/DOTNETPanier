@@ -154,7 +154,10 @@
         .quantity-input {
             border-radius: 6px;
         }
+
+        
     </style>
+
 </head>
 
 <body>
@@ -238,5 +241,9 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
+
+    <partial name="_ChatWidget" />
+
+
 </body>
 </html>

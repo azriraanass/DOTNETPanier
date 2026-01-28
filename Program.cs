@@ -1,14 +1,44 @@
-﻿using Microsoft.EntityFrameworkCore;
-using StackExchange.Redis;
-using WebApplication1.DataContext;
-using WebApplication1.Services.Cookies.CarteItem;
+﻿using DOTNETPanier.Services;
+using DOTNETPanier.Services;
 using DOTNETPanier.Services.Cache;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
+using WebApplication1.DataContext;
+using WebApplication1.Services;
+using WebApplication1.Services.Cookies.CarteItem;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Razor Pages
 builder.Services.AddRazorPages();
+
+// Read Groq config
+var groqConfig = builder.Configuration.GetSection("Groq");
+var groqApiKey = groqConfig["ApiKey"];
+var groqBaseUrl = groqConfig["BaseUrl"];
+
+// Register HttpClient for Groq
+// Register HttpClient for Groq
+builder.Services.AddHttpClient("Groq", client =>
+{
+    // Ensure the URL ends with a slash so HttpClient doesn't cut off the 'v1'
+    string url = groqBaseUrl;
+    if (!url.EndsWith("/"))
+    {
+        url += "/";
+    }
+
+    client.BaseAddress = new Uri(url);
+    client.DefaultRequestHeaders.Authorization =
+        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", groqApiKey);
+});
+
+// Register service as IChatService
+builder.Services.AddSingleton<IChatService, GroqService>();
+builder.Services.AddSingleton<QdrantService>();
+builder.Services.AddScoped<RAGSyncService>();
+
 
 // 🔐 Cookie Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
